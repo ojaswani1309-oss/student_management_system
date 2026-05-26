@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Management System</title>
+
+  <style>
+
+    body{
+      font-family: Arial;
+      background-color: #f2f2f2;
+      padding: 40px;
+    }
+
+    .container{
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      margin: auto;
+      box-shadow: 0px 0px 10px gray;
+    }
+
+    h1{
+      text-align: center;
+    }
+
+    input{
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    button{
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      background-color: blue;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover{
+      background-color: darkblue;
+    }
+
+    #students{
+      margin-top: 20px;
+    }
+
+    .student{
+      background: #eaeaea;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>Student Management</h1>
+
+    <input type="text" id="name" placeholder="Enter Name">
+
+    <input type="number" id="age" placeholder="Enter Age">
+
+    <input type="text" id="course" placeholder="Enter Course">
+
+    <button onclick="addStudent()">Add Student</button>
+
+    <div id="students"></div>
+
+  </div>
+
+  <script>
+
+    async function addStudent(){
+
+      const name = document.getElementById("name").value;
+      const age = document.getElementById("age").value;
+      const course = document.getElementById("course").value;
+
+      const response = await fetch("/students", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          name,
+          age,
+          course
+        })
+
+      });
+
+      const data = await response.json();
+
+      alert("Student Added Successfully");
+
+      loadStudents();
+
+    }
+
+    async function loadStudents(){
+
+      const response = await fetch("/students");
+
+      const students = await response.json();
+
+      let output = "";
+
+      students.forEach(student => {
+
+        output += `
+          <div class="student">
+            <p><b>Name:</b> ${student.name}</p>
+            <p><b>Age:</b> ${student.age}</p>
+            <p><b>Course:</b> ${student.course}</p>
+          </div>
+        `;
+
+      });
+
+      document.getElementById("students").innerHTML = output;
+
+    }
+
+    loadStudents();
+
+  </script>
+
+</body>
+</html>
