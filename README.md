@@ -41,5 +41,5 @@ A Student Management System developed using Node.js, HTML, CSS, and JSON to mana
 
 ## Author
 
-Kushagra Op
+Ojaswani
 B.Tech Computer Science Engineering (3rd Year)
