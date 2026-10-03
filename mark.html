@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Manage Attendance{% endblock %}
+{% block page_title %}Manage Attendance{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-head">
+    <h3 class="card-title">Mark Attendance</h3>
+    <a href="{% url 'attendance_report' %}" class="btn btn-outline"><i class="fa-solid fa-table-list"></i> Attendance Report</a>
+  </div>
+  <form method="get" class="filters filters-wide">
+    <select name="department" id="id_department" class="form-control" required>
+      <option value="">Select department</option>
+      {% for d in departments %}<option value="{{ d.pk }}" {% if d.pk == sel_department %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+    </select>
+    <select name="course" id="id_course" class="form-control" data-filter="id_department:department" required>
+      <option value="">Select course</option>
+      {% for c in courses %}<option value="{{ c.pk }}" data-department="{{ c.department_id }}" {% if c.pk == sel_course %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <select name="semester" id="id_semester" class="form-control" required>
+      <option value="">Select semester</option>
+      {% for n in semesters %}<option value="{{ n }}" {% if n == sel_semester %}selected{% endif %}>Semester {{ n }}</option>{% endfor %}
+    </select>
+    <select name="subject" id="id_subject" class="form-control" data-filter="id_course:course,id_semester:semester" required>
+      <option value="">Select subject</option>
+      {% for s in subjects %}<option value="{{ s.pk }}" data-course="{{ s.course_id }}" data-semester="{{ s.semester }}" {% if s.pk == sel_subject %}selected{% endif %}>{{ s.subject_code }} - {{ s.name }}</option>{% endfor %}
+    </select>
+    <input type="date" name="date" class="form-control" value="{{ date_value|default:today }}" max="{{ today }}" required>
+    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-users"></i> Load Students</button>
+  </form>
+</div>
+
+{% if selection_ready and rows %}
+<div class="card">
+  <div class="card-head">
+    <h3 class="card-title">{{ subject.name }} <span class="muted">&middot; {{ date_value }}</span></h3>
+    <div class="quick-actions">
+      <button type="button" class="btn btn-light" data-mark-all="P">All Present</button>
+      <button type="button" class="btn btn-light" data-mark-all="A">All Absent</button>
+    </div>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Student ID</th><th>Name</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for student, status in rows %}
+        <tr>
+          <td><strong>{{ student.student_id }}</strong></td><td>{{ student.full_name }}</td>
+          <td>
+            <label class="radio present"><input type="radio" name="status_{{ student.pk }}" value="P" {% if status == 'P' %}checked{% endif %}> Present</label>
+            <label class="radio absent"><input type="radio" name="status_{{ student.pk }}" value="A" {% if status == 'A' %}checked{% endif %}> Absent</label>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody></table></div>
+    <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Attendance</button></div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

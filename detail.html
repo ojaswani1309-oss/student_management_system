@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load grade_tags %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block page_title %}{% if is_admin_view %}Student Details{% else %}My Profile{% endif %}{% endblock %}
+{% block content %}
+<div class="card profile-head">
+  {% if student.photo %}<img src="{{ student.photo.url }}" alt="{{ student.full_name }}" class="profile-photo">
+  {% else %}<div class="profile-photo placeholder">{{ student.initials }}</div>{% endif %}
+  <div class="profile-info">
+    <h2>{{ student.full_name }}</h2>
+    <p class="muted">{{ student.student_id }} &middot; {{ student.course.name }} &middot; Semester {{ student.semester }}</p>
+    <div class="chips">
+      <span class="chip"><i class="fa-solid fa-building-columns"></i> {{ student.department.name }}</span>
+      <span class="chip"><i class="fa-solid fa-calendar"></i> Enrolled {{ student.enrollment_year }}</span>
+    </div>
+  </div>
+  {% if is_admin_view %}
+  <div class="profile-actions">
+    <a href="{% url 'student_edit' student.pk %}" class="btn btn-outline"><i class="fa-solid fa-pen"></i> Edit</a>
+    <a href="{% url 'result_view' student.pk %}" class="btn btn-primary"><i class="fa-solid fa-square-poll-vertical"></i> Result</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3 class="card-title">Personal Information</h3>
+    <dl class="details">
+      <dt>Student ID</dt><dd>{{ student.student_id }}</dd>
+      <dt>Full name</dt><dd>{{ student.full_name }}</dd>
+      <dt>Email</dt><dd>{{ student.email }}</dd>
+      <dt>Phone</dt><dd>{{ student.phone }}</dd>
+      <dt>Date of birth</dt><dd>{{ student.date_of_birth|date:"d M Y" }}</dd>
+      <dt>Gender</dt><dd>{{ student.get_gender_display }}</dd>
+      <dt>Address</dt><dd>{{ student.address }}</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h3 class="card-title">Academic Information</h3>
+    <dl class="details">
+      <dt>Department</dt><dd>{{ student.department.name }}</dd>
+      <dt>Course</dt><dd>{{ student.course.name }}</dd>
+      <dt>Semester</dt><dd>{{ student.semester }}</dd>
+      <dt>Enrollment year</dt><dd>{{ student.enrollment_year }}</dd>
+      <dt>Attendance</dt><dd><span class="pct {{ attendance_total.percentage|pct_class }}">{{ attendance_total.percentage }}%</span> ({{ attendance_total.present }}/{{ attendance_total.total }} classes)</dd>
+      <dt>Overall percentage</dt><dd>{{ result.percentage }}%</dd>
+      <dt>Overall grade</dt><dd><span class="grade grade-{{ result.grade|grade_class }}">{{ result.grade }}</span></dd>
+    </dl>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3 class="card-title">Attendance by Subject</h3>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Subject</th><th>Total</th><th>Present</th><th>Absent</th><th>%</th></tr></thead>
+      <tbody>
+      {% for r in attendance_rows %}
+        <tr><td>{{ r.subject__name }}</td><td>{{ r.total }}</td><td>{{ r.present }}</td><td>{{ r.absent }}</td>
+            <td><span class="pct {{ r.percentage|pct_class }}">{{ r.percentage }}%</span></td></tr>
+      {% empty %}<tr><td colspan="5" class="empty">No attendance recorded yet.</td></tr>{% endfor %}
+      </tbody></table></div>
+  </div>
+  <div class="card">
+    <h3 class="card-title">Subjects &amp; Marks</h3>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Subject</th><th>Total</th><th>Grade</th></tr></thead>
+      <tbody>
+      {% for m in result.rows %}
+        <tr><td>{{ m.subject.name }}</td><td>{{ m.total }}/100</td><td><span class="grade grade-{{ m.grade|grade_class }}">{{ m.grade }}</span></td></tr>
+      {% empty %}<tr><td colspan="3" class="empty">No marks recorded yet.</td></tr>{% endfor %}
+      </tbody></table></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load grade_tags %}
+{% block title %}My Attendance{% endblock %}
+{% block page_title %}My Attendance{% endblock %}
+{% block content %}
+<div class="stats">
+  <div class="stat"><div class="stat-icon blue"><i class="fa-solid fa-chalkboard"></i></div><div><div class="stat-value">{{ total.total }}</div><div class="stat-label">Total Classes</div></div></div>
+  <div class="stat"><div class="stat-icon green"><i class="fa-solid fa-check"></i></div><div><div class="stat-value">{{ total.present }}</div><div class="stat-label">Classes Attended</div></div></div>
+  <div class="stat"><div class="stat-icon red"><i class="fa-solid fa-xmark"></i></div><div><div class="stat-value">{{ total.absent }}</div><div class="stat-label">Classes Missed</div></div></div>
+  <div class="stat"><div class="stat-icon orange"><i class="fa-solid fa-percent"></i></div><div><div class="stat-value">{{ total.percentage }}%</div><div class="stat-label">Attendance</div></div></div>
+</div>
+<div class="card">
+  <h3 class="card-title">Subject-wise Attendance</h3>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Subject</th><th>Code</th><th>Total Classes</th><th>Present</th><th>Absent</th><th>Attendance</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td>{{ r.subject__name }}</td><td>{{ r.subject__subject_code }}</td><td>{{ r.total }}</td><td>{{ r.present }}</td><td>{{ r.absent }}</td>
+        <td><div class="bar"><div class="bar-fill {{ r.percentage|pct_class }}" style="width: {{ r.percentage }}%"></div></div>
+            <span class="pct {{ r.percentage|pct_class }}">{{ r.percentage }}%</span></td></tr>
+    {% empty %}<tr><td colspan="6" class="empty">No attendance has been recorded yet.</td></tr>{% endfor %}
+    </tbody></table></div>
+  <p class="muted small">Attendance below 75% is shown in red.</p>
+</div>
+{% endblock %}

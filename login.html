@@ -1,0 +1,53 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login | Student Management System</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="login-body">
+  <div class="login-wrap">
+    <div class="login-side">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <h1>EduManage</h1>
+      <p>Student Management System</p>
+      <ul>
+        <li><i class="fa-solid fa-check"></i> Student records &amp; profiles</li>
+        <li><i class="fa-solid fa-check"></i> Attendance tracking</li>
+        <li><i class="fa-solid fa-check"></i> Marks &amp; results</li>
+      </ul>
+    </div>
+    <div class="login-card">
+      <h2>Welcome back</h2>
+      <p class="muted">Sign in to continue</p>
+
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }}"><i class="fa-solid fa-circle-info"></i><span>{{ message }}</span></div>
+      {% endfor %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i>
+          <span>{% for e in form.non_field_errors %}{{ e }}{% endfor %}</span></div>
+      {% endif %}
+
+      <form method="post" novalidate id="loginForm">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="{{ form.identifier.id_for_label }}">{{ form.identifier.label }}</label>
+          <div class="input-icon"><i class="fa-solid fa-user"></i>{{ form.identifier }}</div>
+          {% for e in form.identifier.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+          <div class="input-icon"><i class="fa-solid fa-lock"></i>{{ form.password }}</div>
+          {% for e in form.password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+      </form>
+    </div>
+  </div>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

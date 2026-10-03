@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}My Subjects{% endblock %}
+{% block page_title %}My Subjects{% endblock %}
+{% block content %}
+<div class="card">
+  <h3 class="card-title">{{ student.course.name }} <span class="muted">(currently Semester {{ student.semester }})</span></h3>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Code</th><th>Subject</th><th>Semester</th><th>Credits</th></tr></thead>
+    <tbody>
+    {% for s in subjects %}
+      <tr {% if s.semester == student.semester %}class="highlight"{% endif %}><td><strong>{{ s.subject_code }}</strong></td><td>{{ s.name }}</td>
+        <td>{{ s.semester }}{% if s.semester == student.semester %} <span class="chip">Current</span>{% endif %}</td><td>{{ s.credits }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="empty">No subjects have been added for your course yet.</td></tr>{% endfor %}
+    </tbody></table></div>
+</div>
+{% endblock %}

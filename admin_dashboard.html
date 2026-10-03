@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load grade_tags %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="stats">
+  <div class="stat"><div class="stat-icon blue"><i class="fa-solid fa-user-graduate"></i></div><div><div class="stat-value">{{ total_students }}</div><div class="stat-label">Total Students</div></div></div>
+  <div class="stat"><div class="stat-icon indigo"><i class="fa-solid fa-book-open"></i></div><div><div class="stat-value">{{ total_courses }}</div><div class="stat-label">Total Courses</div></div></div>
+  <div class="stat"><div class="stat-icon sky"><i class="fa-solid fa-building-columns"></i></div><div><div class="stat-value">{{ total_departments }}</div><div class="stat-label">Departments</div></div></div>
+  <div class="stat"><div class="stat-icon teal"><i class="fa-solid fa-book"></i></div><div><div class="stat-value">{{ total_subjects }}</div><div class="stat-label">Total Subjects</div></div></div>
+  <div class="stat"><div class="stat-icon green"><i class="fa-solid fa-calendar-check"></i></div><div><div class="stat-value">{{ avg_attendance }}%</div><div class="stat-label">Average Attendance</div></div></div>
+  <div class="stat"><div class="stat-icon orange"><i class="fa-solid fa-chart-line"></i></div><div><div class="stat-value">{{ avg_marks }}%</div><div class="stat-label">Average Marks</div></div></div>
+</div>
+
+<div class="card">
+  <h3 class="card-title">Quick Actions</h3>
+  <div class="quick-actions">
+    <a class="btn btn-primary" href="{% url 'student_add' %}"><i class="fa-solid fa-user-plus"></i> Add Student</a>
+    <a class="btn btn-outline" href="{% url 'student_list' %}"><i class="fa-solid fa-users"></i> Manage Students</a>
+    <a class="btn btn-outline" href="{% url 'attendance_mark' %}"><i class="fa-solid fa-calendar-check"></i> Manage Attendance</a>
+    <a class="btn btn-outline" href="{% url 'marks_list' %}"><i class="fa-solid fa-square-poll-vertical"></i> Manage Marks</a>
+    <a class="btn btn-outline" href="{% url 'course_list' %}"><i class="fa-solid fa-book-open"></i> Manage Courses</a>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3 class="card-title">Attendance Overview (by department)</h3>
+    <div class="chart-box"><canvas id="attChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h3 class="card-title">Grade Distribution</h3>
+    <div class="chart-box"><canvas id="gradeChart"></canvas></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3 class="card-title">Recent Students</h3>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>ID</th><th>Name</th><th>Course</th><th>Sem</th></tr></thead>
+      <tbody>
+      {% for s in recent_students %}
+        <tr><td>{{ s.student_id }}</td><td><a href="{% url 'student_detail' s.pk %}">{{ s.full_name }}</a></td><td>{{ s.course.course_id }}</td><td>{{ s.semester }}</td></tr>
+      {% empty %}<tr><td colspan="4" class="empty">No students yet.</td></tr>{% endfor %}
+      </tbody></table></div>
+  </div>
+  <div class="card">
+    <h3 class="card-title">Recent Results</h3>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Student</th><th>Subject</th><th>Total</th><th>Grade</th></tr></thead>
+      <tbody>
+      {% for m in recent_results %}
+        <tr><td>{{ m.student.full_name }}</td><td>{{ m.subject.name }}</td><td>{{ m.total }}</td><td><span class="grade grade-{{ m.grade|grade_class }}">{{ m.grade }}</span></td></tr>
+      {% empty %}<tr><td colspan="4" class="empty">No results yet.</td></tr>{% endfor %}
+      </tbody></table></div>
+  </div>
+</div>
+{{ dept_labels|json_script:"dept-labels" }}
+{{ dept_values|json_script:"dept-values" }}
+{{ grade_labels|json_script:"grade-labels" }}
+{{ grade_values|json_script:"grade-values" }}
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const read = id => JSON.parse(document.getElementById(id).textContent);
+  if (window.Chart) {
+    new Chart(document.getElementById('attChart'), {
+      type: 'bar',
+      data: { labels: read('dept-labels'), datasets: [{ label: 'Attendance %', data: read('dept-values'), backgroundColor: '#2563eb', borderRadius: 6 }] },
+      options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+    });
+    new Chart(document.getElementById('gradeChart'), {
+      type: 'doughnut',
+      data: { labels: read('grade-labels'), datasets: [{ data: read('grade-values'),
+        backgroundColor: ['#16a34a', '#22c55e', '#2563eb', '#0ea5e9', '#f59e0b', '#dc2626'] }] },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+</script>
+{% endblock %}
